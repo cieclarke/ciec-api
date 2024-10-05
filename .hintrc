@@ -1,0 +1,4 @@
+{
+  "extends": ["development"],
+  "$schema": "http://json-schema.org/schema"
+}

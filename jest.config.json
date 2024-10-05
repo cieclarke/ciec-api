@@ -1,0 +1,11 @@
+{
+  "clearMocks": true,
+
+  "collectCoverage": true,
+
+  "coverageDirectory": "coverage",
+
+  "modulePathIgnorePatterns": ["<roorDir>/dist"],
+
+  "testEnvironment": "jsdom"
+}
