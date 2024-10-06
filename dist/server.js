@@ -27,18 +27,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const vhost_1 = __importDefault(require("vhost"));
 const api = __importStar(require("./index"));
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)());
-app.get('/albums', async (req, res) => {
-    const albums = await api.flickr.getAlbums();
-    res.send(albums);
+const apiApp = (0, express_1.default)();
+const wwwApp = (0, express_1.default)();
+apiApp.use((0, cors_1.default)());
+if (!process.env.web_app_base_dir)
+    throw new Error();
+wwwApp.use(express_1.default.static(process.env.web_app_base_dir));
+apiApp.get('/albums', async (req, res) => {
+    res.send(await api.flickr.getAlbums());
 });
-app.get('/photos/', async (req, res) => {
+apiApp.get('/photos/', async (req, res) => {
     res.send(await api.flickr.getAllPhotos());
 });
-app.get('/img/:album/:photo', async (req, res) => { });
+apiApp.get('/img/:album/:photo', async (req, res) => {
+    res.send({});
+});
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => { });
+app.use((0, vhost_1.default)(process.env.api_hostname || '', apiApp));
+app.use((0, vhost_1.default)(process.env.www_hostname || '', wwwApp));
+app.listen(PORT);
 //# sourceMappingURL=server.js.map

@@ -1,21 +1,32 @@
 import express from 'express';
+import vhost from 'vhost';
 import * as api from './index';
 import cors from 'cors';
 
 const app = express();
-app.use(cors());
+const apiApp = express();
+const wwwApp = express();
+apiApp.use(cors());
 
-app.get('/albums', async (req, res) => {
-  const albums = await api.flickr.getAlbums();
-  res.send(albums);
+if (!process.env.web_app_base_dir) throw new Error();
+
+wwwApp.use(express.static(process.env.web_app_base_dir));
+
+apiApp.get('/albums', async (req, res) => {
+  res.send(await api.flickr.getAlbums());
 });
 
-app.get('/photos/', async (req, res) => {
+apiApp.get('/photos/', async (req, res) => {
   res.send(await api.flickr.getAllPhotos());
 });
 
-app.get('/img/:album/:photo', async (req, res) => {});
+apiApp.get('/img/:album/:photo', async (req, res) => {
+  res.send({});
+});
 
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {});
+app.use(vhost(process.env.api_hostname || '', apiApp));
+app.use(vhost(process.env.www_hostname || '', wwwApp));
+
+app.listen(PORT);
