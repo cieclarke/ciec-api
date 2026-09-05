@@ -192,7 +192,7 @@ async function serveResized(req, res, { width, height, fit, format }) {
             pipeline = pipeline.resize({
                 width: parsedWidth || undefined,
                 height: parsedHeight || undefined,
-                fit: fit || "inside", // 'inside' preserves aspect ratio, no cropping
+                fit: fit || "inside",
                 withoutEnlargement: true, // never upscale beyond the master
             });
         }
