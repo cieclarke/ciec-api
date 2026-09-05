@@ -1,0 +1,5 @@
+node_modules/
+originals/*
+cache/*
+!originals/.gitkeep
+!cache/.gitkeep
