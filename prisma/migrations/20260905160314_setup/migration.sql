@@ -2,6 +2,8 @@
 CREATE TABLE `Image` (
     `id` VARCHAR(12) NOT NULL,
     `format` VARCHAR(10) NOT NULL,
+    `description` LONGTEXT NOT NULL,
+    `tags` LONGTEXT NOT NULL,
     `width` INTEGER NOT NULL,
     `height` INTEGER NOT NULL,
     `uploadedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

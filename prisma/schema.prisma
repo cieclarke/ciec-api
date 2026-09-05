@@ -13,8 +13,8 @@ datasource db {
 model Image {
   id          String   @id @db.VarChar(12)
   format      String   @db.VarChar(10)
-  description String   @db.VarChar(255)
-  tags        Json     @default("[]")
+  description String    @db.LongText
+  tags        String      @db.LongText
   width       Int
   height      Int
   uploadedAt  DateTime @default(now())

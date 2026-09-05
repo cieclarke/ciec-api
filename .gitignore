@@ -3,3 +3,5 @@ originals/*
 cache/*
 !originals/.gitkeep
 !cache/.gitkeep
+
+.env
