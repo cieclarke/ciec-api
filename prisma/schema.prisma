@@ -17,6 +17,5 @@ model Image {
   tags        String      @db.LongText
   width       Int
   height      Int
-  uploadedAt  DateTime @default(now())
 }
 
