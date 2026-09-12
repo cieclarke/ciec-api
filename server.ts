@@ -118,10 +118,6 @@ app.post(
       await fsp.writeFile(masterPath, req.file.buffer);
 
       const description = req.body.description || "";
-      let tags: string[] = [];
-      if (req.body.tags) {
-        tags = req.body.tags.split(',').map((t: string) => t.trim()).filter(Boolean);
-      }
 
       // Persist metadata to database
       await prisma.image.create({
@@ -131,7 +127,6 @@ app.post(
           width: metadata.width || 0,
           height: metadata.height || 0,
           description,
-          tags,
         },
       });
 
@@ -141,7 +136,6 @@ app.post(
         height: metadata.height,
         format: metadata.format,
         description,
-        tags,
         urls: {
           original: `/images/${id}/original`,
           thumbnail: `/images/${id}/thumbnail`,
@@ -264,28 +258,113 @@ async function serveResized(
 }
 
 // ---------------------------------------------------------------------
+// GET /tags — list all unique tags
+// ---------------------------------------------------------------------
+app.get("/tags", async (_req: Request, res: Response): Promise<any> => {
+  try {
+    const tags = await prisma.tag.findMany();
+    return res.json(tags.map((t) => t.name));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch tags" });
+  }
+});
+
+// ---------------------------------------------------------------------
+// GET /images/:id/tags — get tags for a specific image
+// ---------------------------------------------------------------------
+app.get(
+  "/images/:id/tags",
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const id = req.params.id as string;
+      const image = await prisma.image.findUnique({
+        where: { id },
+        include: { tags: true },
+      });
+      if (!image) return res.status(404).json({ error: "Image not found" });
+      return res.json(image.tags.map((t) => t.name));
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to fetch tags" });
+    }
+  },
+);
+
+// ---------------------------------------------------------------------
+// PUT /images/:id/tags — set tags for an image
+// ---------------------------------------------------------------------
+app.put(
+  "/images/:id/tags",
+  requireApiKey,
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { tags } = req.body;
+      if (!Array.isArray(tags)) {
+        return res
+          .status(400)
+          .json({ error: "tags must be an array of strings" });
+      }
+
+      const id = req.params.id as string;
+      const image = await prisma.image.findUnique({ where: { id } });
+      if (!image) return res.status(404).json({ error: "Image not found" });
+
+      const tagIdsToConnect = [];
+      for (const tagName of tags) {
+        const trimmed = String(tagName).trim();
+        if (!trimmed) continue;
+
+        // Note: name is LongText, so we just findFirst
+        let existing = await prisma.tag.findFirst({ where: { name: trimmed } });
+        if (!existing) {
+          existing = await prisma.tag.create({
+            data: { id: nanoid(12), name: trimmed },
+          });
+        }
+        tagIdsToConnect.push({ id: existing.id });
+      }
+
+      const updated = await prisma.image.update({
+        where: { id },
+        data: {
+          tags: {
+            set: [], // clear existing tags on this image
+            connect: tagIdsToConnect,
+          },
+        },
+        include: { tags: true },
+      });
+
+      return res.json(updated.tags.map((t) => t.name));
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Failed to update tags" });
+    }
+  },
+);
+
+// ---------------------------------------------------------------------
 // GET /all or GET /images — returns all uploaded images
 // ---------------------------------------------------------------------
-app.get(["/all", "/images"], async (req: Request, res: Response): Promise<any> => {
-  try {
-    const tagsParam = req.query.tags as string;
-    let whereClause: any = {};
+app.get(
+  ["/all", "/images"],
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const tagsParam =
+        typeof req.query.tags === "string" ? req.query.tags : undefined;
+      let whereClause: any = {};
 
-    if (tagsParam) {
-      const tags = tagsParam.split(',').map((t) => t.trim()).filter(Boolean);
-      if (tags.length > 0) {
+      if (tagsParam) {
         whereClause = {
-          AND: tags.map((tag) => ({
-            tags: { array_contains: tag },
-          })),
+          tags: { some: { name: tagsParam } },
         };
       }
-    }
 
-    const images = await prisma.image.findMany({
-      where: whereClause,
-      orderBy: { uploadedAt: "desc" },
-    });
+      const images = await prisma.image.findMany({
+        where: whereClause,
+        include: { tags: true },
+      });
 
       const host = req.get("host");
       const protocol = req.protocol || "http";
@@ -293,6 +372,7 @@ app.get(["/all", "/images"], async (req: Request, res: Response): Promise<any> =
 
       const results = images.map((img) => ({
         ...img,
+        tags: img.tags.map((t) => t.name),
         urls: {
           original: `${baseUrl}/images/${img.id}/original`,
           thumbnail: `${baseUrl}/images/${img.id}/thumbnail`,
@@ -316,9 +396,7 @@ app.get(["/all", "/images"], async (req: Request, res: Response): Promise<any> =
 // ---------------------------------------------------------------------
 app.get("/playlist.m3u", async (req: Request, res: Response): Promise<any> => {
   try {
-    const images = await prisma.image.findMany({
-      orderBy: { uploadedAt: "desc" },
-    });
+    const images = await prisma.image.findMany();
 
     const host = req.get("host");
     const protocol = req.protocol || "http";
@@ -350,25 +428,6 @@ app.get(
     return res.type(master.meta.format).sendFile(master.masterPath);
   },
 );
-
-// ---------------------------------------------------------------------
-// GET /images/ all meta data
-// ---------------------------------------------------------------------
-app.get("/all", async (req: Request, res: Response): Promise<any> => {
-  console.log("asdfasf");
-
-  try {
-    const images = await prisma.image.findMany({
-      orderBy: { uploadedAt: "desc" },
-    });
-
-    res.setHeader("Content-Type", "application/json");
-    return res.send(images);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Failed to get images" });
-  }
-});
 
 // ---------------------------------------------------------------------
 // GET /images/:id/:preset  — named preset (thumbnail/small/medium/large)

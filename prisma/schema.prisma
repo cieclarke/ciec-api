@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,12 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Tag {
+  id     String  @id @db.VarChar(12)
+  name   String  @db.LongText
+  images Image[]
+}
+
 model Image {
-  id          String   @id @db.VarChar(12)
-  format      String   @db.VarChar(10)
-  description String    @db.LongText
-  tags        String      @db.LongText
+  id          String @id @db.VarChar(12)
+  format      String @db.VarChar(10)
+  description String @db.LongText
+  tags        Tag[]
   width       Int
   height      Int
 }
-

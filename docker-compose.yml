@@ -1,17 +1,22 @@
 version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: image-api-mysql
+  mariadb:
+    image: mariadb:11
+    container_name: image-api-mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: image_api
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: image_api
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  mysql_data:
+  mariadb_data:
