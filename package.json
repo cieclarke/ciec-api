@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Hosted image API that serves multiple sizes generated from a master image",
   "main": "dist/server.js",
+  "author": {
+    "name": "cc"
+  },
   "type": "commonjs",
   "scripts": {
     "build": "tsc",
