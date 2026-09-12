@@ -241,7 +241,9 @@ app.put("/images/:id/tags", requireApiKey, async (req, res) => {
     try {
         const { tags } = req.body;
         if (!Array.isArray(tags)) {
-            return res.status(400).json({ error: "tags must be an array of strings" });
+            return res
+                .status(400)
+                .json({ error: "tags must be an array of strings" });
         }
         const id = req.params.id;
         const image = await prisma.image.findUnique({ where: { id } });
