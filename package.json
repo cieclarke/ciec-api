@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch server.ts",
     "migrate": "prisma migrate dev",
-    "migrate_prod": "export DATABASE_URL='mysql://ciecl_221:%24kHGP3%3Fctqovx6l1@localhost:3306/cieclar1_master' && prisma db push",
+    "migrate_prod": "export DATABASE_URL='mysql://ciec:wugser-2tecbo-Kizhad@localhost:3306/cieclar1_master' && prisma db push",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
   },
