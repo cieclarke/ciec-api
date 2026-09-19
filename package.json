@@ -2,15 +2,14 @@
   "name": "image-hosting-api",
   "version": "1.0.0",
   "description": "Hosted image API that serves multiple sizes generated from a master image",
-  "main": "dist/server.js",
+  "main": "server.js",
   "author": {
     "name": "cc"
   },
   "type": "commonjs",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "tsx watch server.ts",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "migrate": "prisma migrate dev",
     "migrate_prod": "export DATABASE_URL='mysql://ciec:wugser-2tecbo-Kizhad@localhost:3306/cieclar1_master' && prisma db push",
     "docker:up": "docker-compose up -d",
@@ -18,20 +17,17 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@prisma/config": "^7.10.0",
+    "@prisma/config": "^6.12.0",
     "express": "^4.19.2",
     "mime-types": "^2.1.35",
-    "multer": "^3.0.0-alpha.2",
+    "multer": "^2.4.0",
     "nanoid": "^3.3.7",
-    "sharp": "^0.32.6"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/mime-types": "^3.0.1",
-    "@types/multer": "^2.2.0",
-    "@types/node": "^26.5.1",
-    "prisma": "^5.22.0",
-    "tsx": "^4.23.13",
-    "typescript": "^7.0.2"
+    "prisma": "^5.22.0"
+  },
+  "allowScripts": {
+    "sharp@0.32.6": true
   }
 }
