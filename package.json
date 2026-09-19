@@ -11,7 +11,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "migrate": "prisma migrate dev",
-    "migrate_prod": "export DATABASE_URL='mysql://ciec:wugser-2tecbo-Kizhad@localhost:3306/cieclar1_master' && prisma db push",
+    "migrate_prod": "export DATABASE_URL='mysql://ciec:wugser-2tecbo-Kizhad@localhost:3306/cieclar1_api' && prisma db push",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
   },
