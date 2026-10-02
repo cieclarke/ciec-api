@@ -238,7 +238,7 @@ app.get("/tags", async (_req, res) => {
     console.error(err);
     return res
       .status(500)
-      .json({ error: "Failed to fetch tags", message: JSON.stringify(error) });
+      .json({ error: "Failed to fetch tags", message: JSON.stringify(err) });
   }
 });
 
