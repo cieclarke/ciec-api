@@ -10,9 +10,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "migrate": "prisma db push",
+    "migrate:push": "prisma db push",
     "migrate:pull": "prisma db pull",
     "migrate:generate": "prisma generate",
+    "prisma:skills": "prisma skills sync",
     "migrate_prod": "export DATABASE_URL='mysql://ciec:BxCRbntTq6KosqP@localhost:3306/cieclar1_api' && prisma db push",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
