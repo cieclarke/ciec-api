@@ -6,9 +6,8 @@ const fsp = require("fs/promises");
 const path = require("path");
 const crypto = require("crypto");
 const { nanoid } = require("nanoid");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("./prisma/client");
 
-const prisma = new PrismaClient();
 const storage = multer.memoryStorage();
 const app = express();
 const PORT = process.env.PORT || 3000;
